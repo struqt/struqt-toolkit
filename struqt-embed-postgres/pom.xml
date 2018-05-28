@@ -5,16 +5,13 @@
   <parent>
     <artifactId>struqt-toolkit</artifactId>
     <groupId>com.struqt</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
   </parent>
   <artifactId>struqt-embed-postgres</artifactId>
-
   <dependencies>
     <dependency>
       <groupId>com.struqt</groupId>
       <artifactId>struqt-toolkit-core</artifactId>
-      <version>${project.parent.version}</version>
     </dependency>
   </dependencies>
-
 </project>

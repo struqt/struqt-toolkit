@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.struqt</groupId>
   <artifactId>struqt-toolkit</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>0.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>Struqt development toolkit</description>
   <url>http://www.struqt.com</url>
@@ -52,6 +52,21 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>com.struqt</groupId>
+        <artifactId>struqt-toolkit-core</artifactId>
+        <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.struqt</groupId>
+        <artifactId>struqt-embed-mysql</artifactId>
+        <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.struqt</groupId>
+        <artifactId>struqt-embed-postgres</artifactId>
+        <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
         <version>${junit.jupiter.version}</version>
@@ -70,6 +85,21 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.46</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.vorburger.mariaDB4j</groupId>
+        <artifactId>mariaDB4j</artifactId>
+        <version>2.3.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
