@@ -13,17 +13,15 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("Test Embedded Mysql")
-public class EmbeddedMysqlTest {
+@DisplayName("Test Embedded Postgres")
+public class JdbcServerPostgresTest {
 
-  private static final Logger log = LoggerFactory.getLogger(EmbeddedMysqlTest.class);
+  private static final Logger log = LoggerFactory.getLogger(JdbcServerPostgresTest.class);
   private static JdbcServer jdbcServer;
   private static String jdbcUrl;
 
@@ -31,12 +29,13 @@ public class EmbeddedMysqlTest {
   public static void beforeAll() {
     JdbcDatabaseConfig config =
         JdbcDatabaseConfig.builder()
-            .urlPort(0)
             .name("db_classic_models")
-            .addInitSqlPath("example.sql")
-            .addInitSqlPath("example.data.sql")
+            .addInitSqlPath("src/test/resources/example.sql")
+            .addInitSqlPath("src/test/resources/example.data.sql")
+            .addAttribute("version", "V9_6")
+            .urlPort(0)
             .build();
-    jdbcServer = new EmbeddedMysql().start(config);
+    jdbcServer = new JdbcServerPostgres().start(config);
     jdbcUrl = jdbcServer.jdbcUrl();
   }
 
@@ -60,7 +59,8 @@ public class EmbeddedMysqlTest {
   @Test
   public void testShowDatabases() throws SQLException {
     try (Connection conn = DriverManager.getConnection(jdbcUrl);
-        PreparedStatement statement = conn.prepareStatement("show databases");
+        PreparedStatement statement =
+            conn.prepareStatement("SELECT datname FROM pg_database WHERE datistemplate = false");
         ResultSet resultSet = statement.executeQuery()) {
       int count = 0;
       while (resultSet.next()) {
@@ -74,51 +74,28 @@ public class EmbeddedMysqlTest {
   @Test
   public void testShowTables() throws SQLException {
     try (Connection conn = DriverManager.getConnection(jdbcUrl);
-        PreparedStatement statement = conn.prepareStatement("show tables");
+        PreparedStatement statement =
+            conn.prepareStatement("SELECT * FROM pg_catalog.pg_tables WHERE schemaname='public'");
         ResultSet resultSet = statement.executeQuery()) {
       int count = 0;
       while (resultSet.next()) {
         ++count;
-        String table = resultSet.getString(1);
+        String table = resultSet.getString(2);
         log.info("table name: {}", table);
       }
-      assertTrue(count > 0);
-    }
-  }
-
-  @Test
-  public void testDescribeTables() throws SQLException {
-    final List<String> tables = new LinkedList<>();
-    try (Connection conn = DriverManager.getConnection(jdbcUrl)) {
-      try (PreparedStatement statement = conn.prepareStatement("show tables");
-          ResultSet resultSet = statement.executeQuery()) {
-        while (resultSet.next()) {
-          String table = resultSet.getString(1);
-          tables.add(table);
-        }
-      }
-      for (String table : tables) {
-        try (PreparedStatement statement = conn.prepareStatement("desc " + table);
-            ResultSet resultSet = statement.executeQuery()) {
-          log.info("----- table name: {} -----", table);
-          while (resultSet.next()) {
-            String f1 = resultSet.getString(1);
-            String f2 = resultSet.getString(2);
-            log.info("table field desc: {} {}", f2, f1);
-          }
-        }
-      }
+      assertTrue(count >= 0);
     }
   }
 
   @Test
   public void testQueryForOrders() throws SQLException {
     String sql =
-        "select `orderDate` `orderDate`, count(*) `orderCount` "
-            + "from `orders` "
-            + "group by `orderDate` "
-            + "having `orderCount`>1 "
-            + "order by `orderDate` asc "
+        ""
+            + "select orderDate, count(*) orderCount\n"
+            + "from orders\n"
+            + "group by orderDate\n"
+            + "having count(*)>1\n"
+            + "order by orderDate asc\n"
             + "limit ?";
     try (Connection conn = DriverManager.getConnection(jdbcUrl);
         PreparedStatement statement = conn.prepareStatement(sql)) {
