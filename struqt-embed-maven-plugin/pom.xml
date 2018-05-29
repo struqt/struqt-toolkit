@@ -8,10 +8,35 @@
     <version>0.1.1-SNAPSHOT</version>
   </parent>
   <artifactId>struqt-embed-maven-plugin</artifactId>
+  <packaging>maven-plugin</packaging>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-plugin-plugin</artifactId>
+          <version>3.3</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
   <dependencies>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>3.3.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>3.3</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>com.struqt</groupId>
       <artifactId>struqt-toolkit-core</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
     </dependency>
     <dependency>
       <groupId>com.struqt</groupId>
@@ -26,4 +51,50 @@
       <optional>true</optional>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>mvn-plugin-test-postgres</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.struqt</groupId>
+            <artifactId>struqt-embed-maven-plugin</artifactId>
+            <version>${project.parent.version}</version>
+            <executions>
+              <execution>
+                <id>start</id>
+                <goals>
+                  <goal>start-jdbc-server</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop</id>
+                <goals>
+                  <goal>stop-jdbc-server</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <database>db_testing</database>
+              <port>33060</port>
+              <attributes>
+                <version>V9_6</version>
+              </attributes>
+              <initSqlPaths>
+                <initSqlPath>main/resources/init</initSqlPath>
+              </initSqlPaths>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>com.struqt</groupId>
+                <artifactId>struqt-embed-postgres</artifactId>
+                <version>${project.parent.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
